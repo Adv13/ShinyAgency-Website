@@ -1,10 +1,9 @@
-
-
 function Home() {
-  console.log(ceciEstUneErreur)
-  return 
-    <div>Page d'accueil
+  return (
+    <div>
+      <h1> Page d'accueil 🏠</h1>
     </div>
+  )
 }
 
-export default Home;
+export default Home
