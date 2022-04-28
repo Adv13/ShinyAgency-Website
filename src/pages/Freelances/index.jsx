@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react'
 import Card from '../../components/Card'
 import styled from 'styled-components'
 import colors from '../../utils/style/colors'
+import { Loader } from '../../utils/style/Atoms'
 
 const CardsContainer = styled.div`
   display: grid;
@@ -41,22 +43,73 @@ const freelanceProfiles = [
   },
 ]
 
+const LoaderWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+`
+
 function Freelances() {
+  const [isDataLoading, setDataLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [freelancersList, setFreelancesList] = useState([])
+
+
+  // Test dans console
+  useEffect(() => {
+    fetch(`http://localhost:8000/freelances`)
+         .then((response) => response.json()
+         .then(({ freelancersList }) => console.log(freelancersList))
+         .catch((error) => console.log(error))
+     )
+ }, [])
+
+ //méthode async
+ useEffect(()=>{
+  async function fetchFreelances(){
+    setDataLoading(true)
+    try{
+      const response = await fetch('http://localhost:8000/freelances')
+      const {freelancersList} = await response.json()
+      setFreelancesList(freelancersList)
+    }
+    catch(err){
+      console.log('===== error =====', err)
+      setError(true)
+    }
+    finally{
+      setDataLoading(false)
+    }
+    
+  }
+  fetchFreelances()
+}, [])
+
+if (error) {
+  return <span>Oups il y a eu un problème</span>
+}
+
   return (
     <div>
       <PageTitle>Trouvez votre prestataire</PageTitle>
       <PageSubtitle>
         Chez Shiny nous réunissons les meilleurs profils pour vous.
       </PageSubtitle>
+      {isDataLoading ? (
+        <LoaderWrapper>
+          <Loader />
+        </LoaderWrapper>
+      ):(
       <CardsContainer>
-        {freelanceProfiles.map((profile, index) => (
+        {freelancersList.map((profile, index) => (
           <Card
             key={`${profile.name}-${index}`}
-            label={profile.jobTitle}
+            label={profile.job}
             title={profile.name}
+            picture={profile.picture}
           />
         ))}
       </CardsContainer>
+      )}
     </div>
   )
 }
